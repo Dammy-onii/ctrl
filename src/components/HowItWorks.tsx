@@ -2,26 +2,26 @@ import { Eyebrow, Reveal, Section } from "./primitives";
 import { LiveSim } from "./LiveSim";
 
 const LOOP = [
-  { step: "Observe", body: "The engine hands your agent only what it is allowed to know." },
-  { step: "Decide", body: "Your logic reads that observation and picks exactly one action." },
-  { step: "Act", body: "The engine executes it. It never second-guesses the choice." },
-  { step: "Update", body: "The world moves on — new tasks, new constraints, new state." },
+  { step: "Set the scenario", body: "Choose a familiar business problem or shape one around your own work." },
+  { step: "Invite candidates", body: "Applicants build a solution instead of answering another abstract question." },
+  { step: "Run the solution", body: "The scenario changes and reveals how each candidate's decisions hold up." },
+  { step: "Review the evidence", body: "Compare their approach, priorities, results, and ability to adapt." },
 ];
 
 export function HowItWorks() {
   return (
     <Section id="how-it-works" className="blueprint">
       <Reveal>
-        <Eyebrow>What CTRL is</Eyebrow>
+        <Eyebrow>How it works</Eyebrow>
         <h2 className="mt-5 max-w-3xl text-3xl leading-[1.1] font-medium tracking-[-0.025em] sm:text-[44px]">
-          The engine executes intelligence.
+          Give candidates a problem
           <br />
-          <span className="text-ink-40">It never creates it.</span>
+          <span className="text-ink-40">that feels like the job.</span>
         </h2>
         <p className="mt-6 max-w-2xl text-base text-ink-60 sm:text-lg">
-          Every simulation runs the same loop, forever, until the objective is met. The engine
-          understands the world and carries out actions. What happens next is entirely your
-          design — and you watch it happen, decision by decision.
+          Candidates create the rules that guide a changing scenario. CTRL runs those rules and
+          shows you the outcome, decision by decision. The example below is deliberately simple:
+          move one rule and the same solution stops working.
         </p>
       </Reveal>
 

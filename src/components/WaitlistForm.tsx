@@ -1,14 +1,17 @@
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 
 /**
- * Posts to VITE_WAITLIST_ENDPOINT when one is configured. Until then the signup
- * is kept locally so the flow is fully clickable in development.
+ * Posts to Web3Forms when VITE_WEB3FORMS_ACCESS_KEY is configured. Development builds
+ * keep submissions locally so the interaction can be tested without a service.
+ * Production builds fail visibly when the access key is missing.
  */
-const ENDPOINT = import.meta.env.VITE_WAITLIST_ENDPOINT as string | undefined;
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
+const ENDPOINT = "https://api.web3forms.com/submit";
 
 type Status = "idle" | "loading" | "done" | "error";
 
 export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const inputId = useId();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
@@ -18,19 +21,35 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
     e.preventDefault();
     if (!email.trim()) return;
     setStatus("loading");
+    const normalizedEmail = email.trim().toLowerCase();
 
     try {
-      if (ENDPOINT) {
+      if (ACCESS_KEY) {
         const res = await fetch(ENDPOINT, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, source: "landing" }),
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            access_key: ACCESS_KEY,
+            email: normalizedEmail,
+            subject: "New CTRL early access request",
+            from_name: "CTRL website",
+            source: "landing",
+          }),
         });
-        if (!res.ok) throw new Error(String(res.status));
-      } else {
+        const result = (await res.json()) as { success?: boolean };
+        if (!res.ok || !result.success) throw new Error(String(res.status));
+      } else if (import.meta.env.DEV) {
         const saved: string[] = JSON.parse(localStorage.getItem("ctrl:waitlist") ?? "[]");
-        localStorage.setItem("ctrl:waitlist", JSON.stringify([...new Set([...saved, email])]));
+        localStorage.setItem(
+          "ctrl:waitlist",
+          JSON.stringify([...new Set([...saved, normalizedEmail])]),
+        );
         await new Promise((r) => setTimeout(r, 450));
+      } else {
+        throw new Error("VITE_WEB3FORMS_ACCESS_KEY is not configured");
       }
       setStatus("done");
     } catch {
@@ -63,18 +82,26 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-md">
+    <form
+      onSubmit={onSubmit}
+      className="w-full max-w-md transition-[max-width] duration-300 ease-out focus-within:max-w-xl"
+    >
       <div
-        className={`flex flex-col gap-2 rounded-2xl p-2 sm:flex-row sm:items-center sm:rounded-full ${
-          onDark ? "bg-white/12 backdrop-blur-sm ring-1 ring-white/20" : "bg-white ring-1 ring-line"
+        className={`flex flex-col gap-2 rounded-2xl p-2 ring-1 transition-[background-color,box-shadow] duration-300 sm:flex-row sm:items-center sm:rounded-full ${
+          onDark
+            ? "bg-white/12 ring-white/20 backdrop-blur-sm focus-within:bg-white/16 focus-within:ring-2 focus-within:ring-volt/80 focus-within:shadow-[0_0_0_5px_rgba(200,255,61,0.12)]"
+            : "bg-white ring-line focus-within:ring-2 focus-within:ring-signal/70 focus-within:shadow-[0_0_0_5px_rgba(79,70,229,0.1)]"
         }`}
       >
-        <label htmlFor={`email-${tone}`} className="sr-only">
+        <label htmlFor={inputId} className="sr-only">
           Email address
         </label>
         <input
-          id={`email-${tone}`}
+          id={inputId}
           type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -92,7 +119,7 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
             onDark ? "bg-white text-ink hover:bg-volt" : "bg-ink text-white hover:bg-ink/85"
           }`}
         >
-          {status === "loading" ? "Joining…" : "Join the waitlist"}
+          {status === "loading" ? "Requesting…" : "Request early access"}
         </button>
       </div>
       <p
@@ -101,8 +128,10 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
         }`}
       >
         {status === "error"
-          ? "Something went wrong — try again in a moment."
-          : "Early access is rolling out by cohort. No spam, ever."}
+          ? ACCESS_KEY
+            ? "Something went wrong — try again in a moment."
+            : "Early access signups are not configured yet."
+          : "Private beta for hiring teams. No spam, ever."}
       </p>
     </form>
   );

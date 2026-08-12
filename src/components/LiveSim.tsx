@@ -136,13 +136,13 @@ export function LiveSim() {
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-mono text-[11px] text-ink-40">
             <span>
-              tick <span className="text-ink">{String(state.tick).padStart(3, "0")}</span>
+              step <span className="text-ink">{String(state.tick).padStart(3, "0")}</span>
             </span>
             <span>
-              cells <span className="text-ink">{state.trail.length}</span>
+              spaces visited <span className="text-ink">{state.trail.length}</span>
             </span>
             <span>
-              action <span className="text-ink">{state.lastAction ?? "—"}</span>
+              last move <span className="text-ink">{state.lastAction ?? "—"}</span>
             </span>
             <span
               className={
@@ -157,7 +157,7 @@ export function LiveSim() {
         {/* ---- the intelligence ---- */}
         <div className="p-5">
           <p className="font-mono text-[11px] tracking-[0.16em] text-ink-40 uppercase">
-            Observation
+            What the agent sees
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {flags.map(([name, on]) => (
@@ -175,7 +175,7 @@ export function LiveSim() {
           </div>
 
           <p className="mt-6 font-mono text-[11px] tracking-[0.16em] text-ink-40 uppercase">
-            Rules · evaluated top to bottom
+            Instructions · checked in order
           </p>
           <ol className="mt-3 space-y-1.5">
             {rules.map((r, idx) => {
@@ -222,9 +222,9 @@ export function LiveSim() {
               className="mt-0.5 size-4 accent-[#4f46e5]"
             />
             <span className="text-[13px] leading-snug text-ink-60">
-              <span className="font-medium text-ink">Move the catch-all rule to the top.</span>{" "}
-              Same three rules, same world — but it now matches every tick and starves the
-              two below it. The agent never leaves the first cell. Order is the algorithm.
+              <span className="font-medium text-ink">Move the “otherwise” rule to the top.</span>{" "}
+              It always applies, so the other two rules never get a chance. The agent stays in
+              its first space. The instructions are the same, but their order changes the result.
             </span>
           </label>
         </div>

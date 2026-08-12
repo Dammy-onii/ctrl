@@ -4,9 +4,9 @@ import { Eyebrow, Reveal, Section } from "./primitives";
 type Mode = "blocks" | "pseudocode" | "code";
 
 const MODES: { id: Mode; label: string; note: string }[] = [
-  { id: "blocks", label: "Blocks", note: "Arrange logic. No syntax to get wrong." },
-  { id: "pseudocode", label: "Pseudocode", note: "The same policy, in plain sentences." },
-  { id: "code", label: "Code", note: "The same policy, in TypeScript." },
+  { id: "blocks", label: "Blocks", note: "Focus on reasoning without testing syntax." },
+  { id: "pseudocode", label: "Plain steps", note: "Explain the same solution in everyday language." },
+  { id: "code", label: "Code", note: "Implement the same solution in TypeScript." },
 ];
 
 export function Ladder() {
@@ -16,16 +16,16 @@ export function Ladder() {
     <Section className="blueprint">
       <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <Reveal>
-          <Eyebrow>Progressive authoring</Eyebrow>
+          <Eyebrow>Flexible assessment format</Eyebrow>
           <h2 className="mt-5 text-3xl leading-[1.1] font-medium tracking-[-0.025em] sm:text-[44px]">
-            Start with blocks.
+            Test the skill you need.
             <br />
-            <span className="text-ink-40">Finish in code.</span>
+            <span className="text-ink-40">Not just code recall.</span>
           </h2>
           <p className="mt-6 max-w-lg text-base leading-relaxed text-ink-60">
-            Blocks and code aren't two products — they're two views of the same intelligence.
-            Edit either one and the other updates, because the engine executes the same thing
-            underneath. There's no cliff to fall off between learning and building.
+            Match the assessment to the role. Candidates can arrange visual blocks, describe
+            their approach in plain steps, or write real code. Every format controls the same
+            scenario, so you can focus on the choices and skills that matter for the job.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-2">

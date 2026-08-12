@@ -2,32 +2,36 @@ import { Eyebrow, Reveal, Section } from "./primitives";
 
 const FAQS = [
   {
-    q: "Do I need to know how to code?",
-    a: "No. You can author a working policy by arranging blocks — conditions, rules, and reusable behaviours — without writing a line of syntax. As you get more confident, the same policy opens as pseudocode and then as real TypeScript, one piece at a time.",
+    q: "What is CTRL?",
+    a: "CTRL is a technical assessment platform. Instead of giving applicants a generic coding question, you place them in a realistic scenario and ask them to build the decision-making logic that keeps it working. You can then review both their result and how they approached the problem.",
   },
   {
-    q: "How is this different from LeetCode or Codewars?",
-    a: "Those ask for a function that returns the right answer to a fixed input. CTRL gives you an environment that keeps changing while you're in it — new tasks arrive, resources run out, priorities shift — and asks for logic that keeps making good decisions. Correctness is the floor, not the score.",
+    q: "Why not use a standard coding test?",
+    a: "Standard tests are useful for checking whether someone can produce a correct answer. CTRL adds context: candidates must understand a changing situation, decide what matters, and build a solution that continues to work. That gives you evidence about judgement and problem-solving as well as technical ability.",
   },
   {
-    q: "Is it a game?",
-    a: "It's a simulation platform that happens to be fun to watch. Every environment is drawn from a real operational problem: warehouse coordination, payment routing, dispatch, parking capacity. The thinking transfers because the problems are the real ones.",
+    q: "Can the assessment reflect our company?",
+    a: "Yes. A financial company might use payment routing, while a logistics company might use delivery assignment. Assessments can also cover common problems such as queues, priorities, capacity, and changing requirements. The goal is to test familiar skills in a context that matters to your team.",
   },
   {
-    q: "How is a run scored?",
-    a: "Reaching the objective is the baseline. Beyond that, runs are measured on efficiency (ticks, moves, path quality), economy (energy and cost), simplicity (how many rules it took), and robustness — whether the same policy still works when the scenario changes.",
+    q: "What does the hiring team get to review?",
+    a: "You see whether the solution worked, how efficiently it performed, and the decisions that produced the outcome. That record helps reviewers compare candidates consistently and gives interviewers specific choices and trade-offs to discuss.",
   },
   {
-    q: "Can I reuse work between challenges?",
-    a: "That's the intent. Conditions and behaviours you build become named, reusable assets in your own library — a dead-end detector, a wall follower, a route planner — that you carry forward and improve, the way you'd build up a codebase rather than restart each time.",
+    q: "Where does CTRL fit in our hiring process?",
+    a: "It can be an early screen, a practical skills stage, or a final exercise before an interview. Use it early to reduce the number of applications your team reviews manually, or later when you need more confidence before making a decision.",
   },
   {
-    q: "Can my team run its own simulation?",
-    a: "Yes, that's on the roadmap for teams. Because each environment is content on a shared engine, we can model an operational problem specific to your domain for onboarding, internal training, or technical evaluation. Join the waitlist and tell us what you'd want simulated.",
+    q: "Does it replace interviews?",
+    a: "No. It makes them more useful. CTRL gives your team evidence before the conversation, so interviewers can spend less time confirming basic ability and more time understanding the candidate's reasoning, experience, and fit for the role.",
+  },
+  {
+    q: "How does another assessment save us time and cost?",
+    a: "The assessment adds a step for candidates, but reduces repeated work for your hiring team. A consistent first-stage screen can narrow a large applicant pool before interviews begin. Used later, it can prevent extra interview rounds by giving the team clearer evidence sooner.",
   },
   {
     q: "When does access open?",
-    a: "We're opening in cohorts, smallest first, so we can watch real sessions closely and fix what's confusing before widening. Join the waitlist and we'll reach out when your seat is ready.",
+    a: "CTRL is opening to companies in small private-beta cohorts. Join the waitlist and tell us about the roles you hire for and the kind of scenario you would want applicants to solve.",
   },
 ];
 

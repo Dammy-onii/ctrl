@@ -2,22 +2,22 @@ import { Eyebrow, Reveal, Section } from "./primitives";
 
 const BLOCKS = [
   {
-    tag: "Debugging",
-    stat: "0",
-    statNote: "logs to read to find the decision that broke the run",
-    body: "When an algorithm fails you don't reconstruct it from console output. You rewind to the tick, see the observation it had, and see the rule it fired. Debugging becomes watching behaviour instead of interpreting logs.",
+    tag: "Hiring time",
+    stat: "Less",
+    statNote: "time spent interviewing candidates without enough evidence",
+    body: "Use CTRL before interviews to narrow a large applicant pool, or later in the process when you need stronger proof. Your team spends its time with candidates who have already shown how they approach relevant work.",
   },
   {
-    tag: "Problems",
+    tag: "Relevance",
     stat: "Real",
-    statNote: "operations problems, not sorted-array trivia",
-    body: "Coordinate warehouse robots under changing workloads. Route transactions across providers during an outage. Dispatch riders through traffic. Each one teaches a different shape of algorithmic thinking on the same decision architecture.",
+    statNote: "workplace scenarios instead of generic coding puzzles",
+    body: "A bank can assess payment routing. A delivery company can assess dispatch decisions. You can also test common skills such as managing queues, priorities, limited resources, and changing requirements.",
   },
   {
-    tag: "Signal",
-    stat: "Two",
-    statNote: "people can both pass and think nothing alike",
-    body: "Because every decision is observable, a run shows how someone decomposes a system, what they prioritise, and how they respond when conditions change. That's a far richer read than whether the tests went green.",
+    tag: "Evidence",
+    stat: "Clear",
+    statNote: "insight into how each candidate reached their result",
+    body: "Two candidates can reach the same answer in very different ways. CTRL shows the decisions behind the result, giving your team a more useful basis for shortlisting, interviewing, and comparing applicants.",
   },
 ];
 
@@ -25,11 +25,11 @@ export function Why() {
   return (
     <Section>
       <Reveal>
-        <Eyebrow>Why it's different</Eyebrow>
+        <Eyebrow>Why use CTRL</Eyebrow>
         <h2 className="mt-5 max-w-3xl text-3xl leading-[1.1] font-medium tracking-[-0.025em] sm:text-[44px]">
-          Most platforms ask whether you got the answer.
+          Make better shortlists
           <br />
-          <span className="text-ink-40">CTRL watches how you think.</span>
+          <span className="text-ink-40">with less interview work.</span>
         </h2>
       </Reveal>
 

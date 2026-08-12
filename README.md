@@ -1,7 +1,8 @@
 # CTRL — landing page & waitlist
 
-Marketing site for CTRL, a simulation platform where people build the intelligence
-behind real operational systems. React + TypeScript + Tailwind v4 on Vite.
+Marketing site for CTRL, a technical assessment platform where applicants solve
+realistic scenarios based on the work a company actually does. React + TypeScript
++ Tailwind v4 on Vite.
 
 ```bash
 npm run dev     # http://localhost:5173
@@ -17,11 +18,11 @@ src/
 ├── components/
 │   ├── Hero.tsx        # grainy mesh hero + waitlist capture
 │   ├── LiveSim.tsx     # the live maze demo and its rule panel
-│   ├── HowItWorks.tsx  # "the engine executes intelligence" + observe/decide/act/update
+│   ├── HowItWorks.tsx  # four-step assessment flow + interactive demo
 │   ├── Why.tsx         # three differentiator blocks
-│   ├── Ladder.tsx      # blocks / pseudocode / code, three views of one policy
-│   ├── Simulations.tsx # the environment gallery
-│   ├── WhoItsFor.tsx   # learners, educators, hiring teams, competitors
+│   ├── Ladder.tsx      # blocks / plain steps / code assessment formats
+│   ├── Simulations.tsx # example and custom assessment scenarios
+│   ├── WhoItsFor.tsx   # ways CTRL fits into a company's hiring process
 │   ├── Waitlist.tsx    # closing CTA
 │   └── Faq.tsx
 └── index.css           # Tailwind theme tokens, mesh gradient, grain, animations
@@ -59,21 +60,25 @@ vignette sit on top with normal compositing to hold white-text contrast.
 observes, executes, and updates, while a plain-data rule list decides. The shipped
 policy is a right-hand wall follower that solves the maze in 69 ticks.
 
-The "move the catch-all rule to the top" toggle in the demo is a genuine break, not
-a scripted animation — that ordering makes rule 3 match every tick and starve the
-two below it, so the agent never leaves its first cell. Both outcomes are verified
-against the engine.
+The "move the otherwise rule to the top" toggle in the demo is a genuine break,
+not a scripted animation — that ordering makes rule 3 match every tick and prevent
+the two below it from running, so the agent never leaves its first cell. Both
+outcomes are verified against the engine.
 
 ## Waitlist submissions
 
-`WaitlistForm` posts to `VITE_WAITLIST_ENDPOINT` when it is set:
+`WaitlistForm` posts to Web3Forms when `VITE_WEB3FORMS_ACCESS_KEY` is set:
 
 ```bash
 # .env.local
-VITE_WAITLIST_ENDPOINT=https://your-endpoint.example.com/waitlist
+VITE_WEB3FORMS_ACCESS_KEY=YOUR_ACCESS_KEY
 ```
 
-It sends `{ email, source: "landing" }`. With no endpoint configured, signups are
-kept in `localStorage` under `ctrl:waitlist` so the flow stays clickable in
-development. **Wire up the endpoint before launch** — otherwise real signups are
-only stored in the visitor's own browser.
+Request an access key at `https://web3forms.com` using the inbox that should
+receive signup notifications. Add that value to the deployment environment and
+rebuild the site. The form sends the applicant's email and signup source to the
+Web3Forms API, which forwards the submission to the verified inbox.
+
+With no access key configured, development builds keep test signups in
+`localStorage` under `ctrl:waitlist`. Production builds show a configuration error
+and never display a false success message.

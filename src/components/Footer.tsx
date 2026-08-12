@@ -1,17 +1,17 @@
-import { Logo } from "./Logo";
-
 export function Footer() {
   return (
     <footer className="border-t border-line">
       <div className="flex flex-col gap-8 px-5 py-12 sm:px-10 md:flex-row md:items-end md:justify-between lg:px-16 2xl:px-22">
         <div>
-          <div className="flex items-center gap-3">
-            <Logo className="size-8" />
-            <span className="font-mono text-[19px] font-medium tracking-[0.06em]">CTRL</span>
-          </div>
+          <a
+            href="#top"
+            className="font-mono text-[24px] leading-none font-medium tracking-[-0.06em]"
+            aria-label="ctrl home"
+          >
+            ctrl
+          </a>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-60">
-            A simulation platform for designing, evaluating, and understanding intelligent
-            decision-making.
+            Technical assessments built around realistic problems from your company and industry.
           </p>
         </div>
 
@@ -19,8 +19,8 @@ export function Footer() {
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
             {[
               { label: "How it works", href: "#how-it-works" },
-              { label: "Simulations", href: "#simulations" },
-              { label: "Who it's for", href: "#who-its-for" },
+              { label: "Scenarios", href: "#simulations" },
+              { label: "Where it fits", href: "#who-its-for" },
               { label: "FAQ", href: "#faq" },
             ].map((l) => (
               <a
@@ -33,7 +33,7 @@ export function Footer() {
             ))}
           </nav>
           <p className="font-mono text-[11px] tracking-wide text-ink-40">
-            © {new Date().getFullYear()} CTRL — the engine executes intelligence.
+            © {new Date().getFullYear()} CTRL — assess candidates through real work.
           </p>
         </div>
       </div>

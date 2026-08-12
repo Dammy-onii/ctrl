@@ -2,40 +2,40 @@ import { Eyebrow, Reveal, Section } from "./primitives";
 
 const SIMS = [
   {
-    name: "Warehouse automation",
-    teaches: "Task assignment · batching",
-    body: "Robots pick, carry, and deliver inventory while orders keep arriving and batteries keep draining. Decide who does what, and in what order.",
-    status: "Live",
+    name: "Banking & payments",
+    teaches: "Reliability · cost · recovery",
+    body: "Ask candidates to route payments across different providers, respond when a channel fails, and balance speed, cost, and reliability.",
+    status: "Example",
   },
   {
-    name: "Payment routing",
-    teaches: "Cost / reliability trade-offs",
-    body: "Every transaction needs a provider. Balance fee, speed, and success rate — and re-route the instant one of them starts failing.",
-    status: "Live",
+    name: "Warehouse operations",
+    teaches: "Priorities · workload · resources",
+    body: "Ask candidates to assign incoming orders, manage limited resources, and keep work moving as demand and availability change.",
+    status: "Example",
   },
   {
-    name: "Smart parking",
-    teaches: "Allocation · congestion",
-    body: "Assign spaces, honour reservations, and keep the lanes moving as a facility fills toward capacity.",
-    status: "Live",
+    name: "Customer support",
+    teaches: "Queues · urgency · fairness",
+    body: "Ask candidates to organise incoming requests, identify what needs attention first, and prevent important cases from being overlooked.",
+    status: "Example",
   },
   {
-    name: "Retail operations",
-    teaches: "Scheduling under deadlines",
-    body: "Departments drain at different rates and the store opens at a fixed hour. Restock in the order that actually matters.",
-    status: "Live",
+    name: "Delivery operations",
+    teaches: "Assignment · timing · change",
+    body: "Ask candidates to match drivers with orders while customer promises, traffic, availability, and priorities keep changing.",
+    status: "Example",
   },
   {
-    name: "Delivery dispatch",
-    teaches: "Routing · priorities",
-    body: "Match riders to orders across a changing map, weighing customer promises against traffic and restaurant prep times.",
-    status: "Soon",
+    name: "Shared software problems",
+    teaches: "Queues · priorities · capacity",
+    body: "Assess the everyday thinking behind software systems, even when the scenario is not tied to one industry or department.",
+    status: "Example",
   },
   {
-    name: "Bring your own",
-    teaches: "Custom domains",
-    body: "Teams can model their own operational problem on the same engine — onboarding, internal training, or evaluation in your actual domain.",
-    status: "Soon",
+    name: "Your company's scenario",
+    teaches: "Your work · your priorities",
+    body: "Shape an assessment around a problem your team understands and give applicants a realistic view of the work they are joining.",
+    status: "Custom",
   },
 ];
 
@@ -43,16 +43,16 @@ export function Simulations() {
   return (
     <Section id="simulations">
       <Reveal>
-        <Eyebrow>The simulations</Eyebrow>
+        <Eyebrow>Assessment scenarios</Eyebrow>
         <h2 className="mt-5 max-w-3xl text-3xl leading-[1.1] font-medium tracking-[-0.025em] sm:text-[44px]">
-          One engine.
+          Start with a common problem.
           <br />
-          <span className="text-ink-40">Entirely different problems.</span>
+          <span className="text-ink-40">Make it relevant to your company.</span>
         </h2>
         <p className="mt-6 max-w-2xl text-base text-ink-60">
-          These aren't separate products or harder mazes. Each defines its own world, rules, and
-          scoring on top of the same decision pipeline — which is why new industries arrive as
-          content, not rewrites.
+          Some challenges appear everywhere: deciding what comes first, managing a queue, or
+          working with limited time and resources. CTRL can also turn a process from your own
+          industry into an assessment candidates can understand and solve.
         </p>
       </Reveal>
 
@@ -64,7 +64,7 @@ export function Simulations() {
                 <h3 className="text-lg font-medium">{s.name}</h3>
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 font-mono text-[10px] tracking-wide uppercase ${
-                    s.status === "Live"
+                    s.status === "Example"
                       ? "bg-volt text-ink"
                       : "border border-line text-ink-40"
                   }`}
