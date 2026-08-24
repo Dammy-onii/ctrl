@@ -35,31 +35,18 @@ function doPost(e) {
     const sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
     if (!sheet) return json({ success: false, error: "sheet tab not found: " + SHEET_NAME });
 
-    // Skip duplicates by scanning the email column (column 2) — but only when
-    // there is at least one data row. getRange() throws if asked for 0 rows, so
-    // an empty sheet (header only) must skip the read entirely.
-    const lastRow = sheet.getLastRow();
-    let duplicate = false;
-    if (lastRow >= 2) {
-      const existing = sheet
-        .getRange(2, 2, lastRow - 1, 1)
-        .getValues()
-        .flat()
-        .map(String);
-      duplicate = existing.indexOf(email) !== -1;
-    }
+    // Duplicates are allowed on purpose: every submission is logged as its own
+    // timestamped row, so repeat sign-ups and return interest are captured. Dedupe
+    // later in the sheet (e.g. a pivot on the email column) if you need a unique list.
+    sheet.appendRow([
+      new Date(),
+      email,
+      String(data.company || ""),
+      String(data.role || ""),
+      data.source || "landing",
+    ]);
 
-    if (!duplicate) {
-      sheet.appendRow([
-        new Date(),
-        email,
-        String(data.company || ""),
-        String(data.role || ""),
-        data.source || "landing",
-      ]);
-    }
-
-    return json({ success: true, duplicate: duplicate });
+    return json({ success: true });
   } catch (err) {
     return json({ success: false, error: String(err) });
   }

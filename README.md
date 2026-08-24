@@ -70,10 +70,13 @@ outcomes are verified against the engine.
 Signups are stored in a **Google Sheet** via a Google Apps Script web app — free,
 with effectively no cap on how many emails you collect.
 
-```bash
-# .env.local
-VITE_WAITLIST_ENDPOINT=https://script.google.com/macros/s/XXXX/exec
-```
+The deployment URL is hardcoded as `DEFAULT_ENDPOINT` in
+[`src/components/WaitlistForm.tsx`](src/components/WaitlistForm.tsx), and it lives in
+the client on purpose: `import.meta.env.VITE_*` is inlined at *build* time, so an
+endpoint kept only in `.env.local` is absent from any bundle a host builds without
+that variable — which is why the form worked on localhost but did nothing once
+deployed. The `/exec` URL is public anyway (access = *Anyone* can POST), so shipping
+it is safe. `VITE_WAITLIST_ENDPOINT` still overrides it when set.
 
 **One-time setup** (full steps are in [`scripts/waitlist.gs`](scripts/waitlist.gs)):
 
@@ -81,14 +84,17 @@ VITE_WAITLIST_ENDPOINT=https://script.google.com/macros/s/XXXX/exec
 2. In that sheet: **Extensions → Apps Script**, paste `scripts/waitlist.gs`, and
    set `SHEET_ID` to the id from the sheet's URL.
 3. **Deploy → New deployment → Web app**, execute as *Me*, access *Anyone*.
-4. Copy the `/exec` URL into `.env.local` as `VITE_WAITLIST_ENDPOINT`, then rebuild.
+4. Put the `/exec` URL in `DEFAULT_ENDPOINT` in `WaitlistForm.tsx`, then rebuild.
+   Re-deploying a *new version* keeps the same URL; a brand-new deployment mints a
+   new one — update `DEFAULT_ENDPOINT` if it ever changes.
 
-The script skips duplicate emails and appends a timestamped row for each new one.
+The script appends a timestamped row for every submission (duplicates included), so repeat sign-ups are all captured; dedupe in the sheet later if you need a unique list.
 Because Apps Script responses carry no CORS headers, the form posts as a simple
 `text/plain` request with `mode: "no-cors"`; the row is written server-side even
 though the browser sees an opaque response, so a resolved request is treated as
 success.
 
-With no endpoint configured, development builds keep test signups in
-`localStorage` under `ctrl:waitlist`. Production builds show a configuration error
-and never display a false success message.
+Both localhost and the deployed site post to the same endpoint, so you can verify a
+real signup end to end before shipping. Because the Apps Script response is opaque
+(no CORS headers), the form treats any completed request as success — check the
+Sheet, or the script's **Executions** log, to confirm a row actually landed.

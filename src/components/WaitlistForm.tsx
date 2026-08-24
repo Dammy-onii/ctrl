@@ -2,16 +2,26 @@ import { useId, useState, type FormEvent } from "react";
 
 /**
  * Posts each signup to a Google Apps Script web app, which appends a row to a
- * Google Sheet (free, effectively unlimited storage). Set VITE_WAITLIST_ENDPOINT
- * to the script's deployment URL — see README, "Waitlist submissions".
+ * Google Sheet (free, effectively unlimited storage).
+ *
+ * The endpoint is hardcoded below, not read only from an env var, on purpose:
+ * `import.meta.env.VITE_*` is inlined at BUILD time, so a value present in a
+ * local `.env.local` is absent from a bundle a host builds without it — which is
+ * why the form worked on localhost but did nothing once deployed. The Apps Script
+ * /exec URL is public by design (access = Anyone), so it is safe to ship in the
+ * client. VITE_WAITLIST_ENDPOINT still overrides it when set, so you can point at
+ * a new deployment without editing code.
  *
  * Apps Script responses carry no CORS headers, so we send the request as a
  * "simple" POST (text/plain, no preflight) with mode: "no-cors". The row is
  * written server-side even though the browser hands us an opaque response, so a
- * request that resolves is treated as success. Development builds with no
- * endpoint keep submissions in localStorage so the flow stays testable.
+ * request that resolves is treated as success.
  */
-const ENDPOINT = import.meta.env.VITE_WAITLIST_ENDPOINT as string | undefined;
+const DEFAULT_ENDPOINT =
+  "https://script.google.com/macros/s/AKfycbyeKskgztwOgoVbTdP2LLAFIrxUkwyxwROlbQu7BR8P9gusjWgI1bznXk9q3yeG0ibZ/exec";
+
+const ENDPOINT =
+  (import.meta.env.VITE_WAITLIST_ENDPOINT as string | undefined) || DEFAULT_ENDPOINT;
 
 type Status = "idle" | "loading" | "done" | "error";
 
@@ -36,23 +46,32 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
       source: "landing",
     };
 
+    const body = JSON.stringify(payload);
+
     try {
-      if (ENDPOINT) {
+      // Prefer sendBeacon: it hands the POST to the browser to deliver and never
+      // exposes Apps Script's 302 -> googleusercontent "echo" redirect to our
+      // code, so a broken/missing echo response can't abort or hang the request.
+      // doPost still runs server-side. Falls back to a no-cors fetch when the
+      // browser has no sendBeacon (or refuses to queue it).
+      const beacon =
+        typeof navigator !== "undefined" && "sendBeacon" in navigator
+          ? navigator.sendBeacon(ENDPOINT, new Blob([body], { type: "text/plain;charset=utf-8" }))
+          : false;
+
+      if (!beacon) {
         await fetch(ENDPOINT, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(payload),
+          body,
         });
-        // Opaque response by design (Apps Script sends no CORS headers); the row
-        // is written regardless, so a resolved request means the signup landed.
-      } else if (import.meta.env.DEV) {
-        const saved: unknown[] = JSON.parse(localStorage.getItem("ctrl:waitlist") ?? "[]");
-        localStorage.setItem("ctrl:waitlist", JSON.stringify([...saved, payload]));
-        await new Promise((r) => setTimeout(r, 450));
-      } else {
-        throw new Error("VITE_WAITLIST_ENDPOINT is not configured");
       }
+
+      // The response is unreadable either way (no CORS headers), so a request
+      // that fired without throwing is treated as success. Whether the row was
+      // actually written depends on the Apps Script deployment being reachable
+      // by anonymous visitors (access = "Anyone") — confirm in the Sheet.
       setStatus("done");
     } catch {
       setStatus("error");
@@ -156,9 +175,7 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
         }`}
       >
         {status === "error"
-          ? ENDPOINT
-            ? "Something went wrong — try again in a moment."
-            : "Early access signups are not configured yet."
+          ? "Something went wrong — try again in a moment."
           : "Company and role are optional. No spam, ever."}
       </p>
     </form>
