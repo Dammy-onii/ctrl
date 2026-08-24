@@ -67,18 +67,28 @@ outcomes are verified against the engine.
 
 ## Waitlist submissions
 
-`WaitlistForm` posts to Web3Forms when `VITE_WEB3FORMS_ACCESS_KEY` is set:
+Signups are stored in a **Google Sheet** via a Google Apps Script web app — free,
+with effectively no cap on how many emails you collect.
 
 ```bash
 # .env.local
-VITE_WEB3FORMS_ACCESS_KEY=YOUR_ACCESS_KEY
+VITE_WAITLIST_ENDPOINT=https://script.google.com/macros/s/XXXX/exec
 ```
 
-Request an access key at `https://web3forms.com` using the inbox that should
-receive signup notifications. Add that value to the deployment environment and
-rebuild the site. The form sends the applicant's email and signup source to the
-Web3Forms API, which forwards the submission to the verified inbox.
+**One-time setup** (full steps are in [`scripts/waitlist.gs`](scripts/waitlist.gs)):
 
-With no access key configured, development builds keep test signups in
+1. Create a Google Sheet with headers `timestamp | email | company | role | source` in row 1.
+2. In that sheet: **Extensions → Apps Script**, paste `scripts/waitlist.gs`, and
+   set `SHEET_ID` to the id from the sheet's URL.
+3. **Deploy → New deployment → Web app**, execute as *Me*, access *Anyone*.
+4. Copy the `/exec` URL into `.env.local` as `VITE_WAITLIST_ENDPOINT`, then rebuild.
+
+The script skips duplicate emails and appends a timestamped row for each new one.
+Because Apps Script responses carry no CORS headers, the form posts as a simple
+`text/plain` request with `mode: "no-cors"`; the row is written server-side even
+though the browser sees an opaque response, so a resolved request is treated as
+success.
+
+With no endpoint configured, development builds keep test signups in
 `localStorage` under `ctrl:waitlist`. Production builds show a configuration error
 and never display a false success message.

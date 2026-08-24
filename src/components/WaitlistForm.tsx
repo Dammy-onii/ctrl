@@ -1,18 +1,25 @@
 import { useId, useState, type FormEvent } from "react";
 
 /**
- * Posts to Web3Forms when VITE_WEB3FORMS_ACCESS_KEY is configured. Development builds
- * keep submissions locally so the interaction can be tested without a service.
- * Production builds fail visibly when the access key is missing.
+ * Posts each signup to a Google Apps Script web app, which appends a row to a
+ * Google Sheet (free, effectively unlimited storage). Set VITE_WAITLIST_ENDPOINT
+ * to the script's deployment URL — see README, "Waitlist submissions".
+ *
+ * Apps Script responses carry no CORS headers, so we send the request as a
+ * "simple" POST (text/plain, no preflight) with mode: "no-cors". The row is
+ * written server-side even though the browser hands us an opaque response, so a
+ * request that resolves is treated as success. Development builds with no
+ * endpoint keep submissions in localStorage so the flow stays testable.
  */
-const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as string | undefined;
-const ENDPOINT = "https://api.web3forms.com/submit";
+const ENDPOINT = import.meta.env.VITE_WAITLIST_ENDPOINT as string | undefined;
 
 type Status = "idle" | "loading" | "done" | "error";
 
 export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
-  const inputId = useId();
+  const uid = useId();
   const [email, setEmail] = useState("");
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
   const [status, setStatus] = useState<Status>("idle");
 
   const onDark = tone === "light"; // form sits on the dark hero
@@ -21,35 +28,30 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
     e.preventDefault();
     if (!email.trim()) return;
     setStatus("loading");
-    const normalizedEmail = email.trim().toLowerCase();
+
+    const payload = {
+      email: email.trim().toLowerCase(),
+      company: company.trim(),
+      role: role.trim(),
+      source: "landing",
+    };
 
     try {
-      if (ACCESS_KEY) {
-        const res = await fetch(ENDPOINT, {
+      if (ENDPOINT) {
+        await fetch(ENDPOINT, {
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            access_key: ACCESS_KEY,
-            email: normalizedEmail,
-            subject: "New CTRL early access request",
-            from_name: "CTRL website",
-            source: "landing",
-          }),
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
         });
-        const result = (await res.json()) as { success?: boolean };
-        if (!res.ok || !result.success) throw new Error(String(res.status));
+        // Opaque response by design (Apps Script sends no CORS headers); the row
+        // is written regardless, so a resolved request means the signup landed.
       } else if (import.meta.env.DEV) {
-        const saved: string[] = JSON.parse(localStorage.getItem("ctrl:waitlist") ?? "[]");
-        localStorage.setItem(
-          "ctrl:waitlist",
-          JSON.stringify([...new Set([...saved, normalizedEmail])]),
-        );
+        const saved: unknown[] = JSON.parse(localStorage.getItem("ctrl:waitlist") ?? "[]");
+        localStorage.setItem("ctrl:waitlist", JSON.stringify([...saved, payload]));
         await new Promise((r) => setTimeout(r, 450));
       } else {
-        throw new Error("VITE_WEB3FORMS_ACCESS_KEY is not configured");
+        throw new Error("VITE_WAITLIST_ENDPOINT is not configured");
       }
       setStatus("done");
     } catch {
@@ -60,11 +62,11 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
   if (status === "done") {
     return (
       <div
-        className={`flex items-center gap-3 rounded-full px-5 py-3 text-sm ${
+        className={`flex items-center gap-3 rounded-2xl px-5 py-4 text-sm ${
           onDark ? "bg-white/15 text-white backdrop-blur" : "bg-ink text-white"
         }`}
       >
-        <span className="grid size-5 place-items-center rounded-full bg-volt text-ink">
+        <span className="grid size-5 shrink-0 place-items-center rounded-full bg-volt text-ink">
           <svg viewBox="0 0 12 12" className="size-3" aria-hidden="true">
             <path
               d="M2 6.2 4.6 8.8 10 3.4"
@@ -76,28 +78,29 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
             />
           </svg>
         </span>
-        You're on the list. We'll be in touch when your seat opens.
+        You're on the list. We'll be in touch when your cohort opens.
       </div>
     );
   }
 
+  const field = onDark
+    ? "bg-white/5 text-white placeholder:text-white/45 focus:bg-white/10"
+    : "bg-black/[0.04] text-ink placeholder:text-ink-40 focus:bg-black/[0.07]";
+
   return (
-    <form
-      onSubmit={onSubmit}
-      className="w-full max-w-md transition-[max-width] duration-300 ease-out focus-within:max-w-xl"
-    >
+    <form onSubmit={onSubmit} className="w-full max-w-md">
       <div
-        className={`flex flex-col gap-2 rounded-2xl p-2 ring-1 transition-[background-color,box-shadow] duration-300 sm:flex-row sm:items-center sm:rounded-full ${
+        className={`flex flex-col gap-2 rounded-2xl border p-2 transition-colors duration-300 ${
           onDark
-            ? "bg-white/12 ring-white/20 backdrop-blur-sm focus-within:bg-white/16 focus-within:ring-2 focus-within:ring-volt/80 focus-within:shadow-[0_0_0_5px_rgba(200,255,61,0.12)]"
-            : "bg-white ring-line focus-within:ring-2 focus-within:ring-signal/70 focus-within:shadow-[0_0_0_5px_rgba(79,70,229,0.1)]"
+            ? "border-transparent bg-white/10 backdrop-blur-sm hover:border-volt/60 focus-within:border-volt"
+            : "border-transparent bg-paper/90 hover:border-signal/50 focus-within:border-signal"
         }`}
       >
-        <label htmlFor={inputId} className="sr-only">
-          Email address
+        <label htmlFor={`${uid}-email`} className="sr-only">
+          Work email
         </label>
         <input
-          id={inputId}
+          id={`${uid}-email`}
           type="email"
           name="email"
           autoComplete="email"
@@ -105,17 +108,42 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@company.com"
-          className={`min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm outline-none ${
-            onDark
-              ? "text-white placeholder:text-white/50"
-              : "text-ink placeholder:text-ink-40"
-          }`}
+          placeholder="Work email"
+          className={`w-full rounded-xl px-4 py-2.5 text-sm outline-none transition ${field}`}
         />
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <label htmlFor={`${uid}-company`} className="sr-only">
+            Company
+          </label>
+          <input
+            id={`${uid}-company`}
+            type="text"
+            name="company"
+            autoComplete="organization"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder="Company"
+            className={`w-full rounded-xl px-4 py-2.5 text-sm outline-none transition ${field}`}
+          />
+          <label htmlFor={`${uid}-role`} className="sr-only">
+            Roles you hire for
+          </label>
+          <input
+            id={`${uid}-role`}
+            type="text"
+            name="role"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="Roles you hire for"
+            className={`w-full rounded-xl px-4 py-2.5 text-sm outline-none transition ${field}`}
+          />
+        </div>
+
         <button
           type="submit"
           disabled={status === "loading"}
-          className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition disabled:opacity-60 ${
+          className={`w-full rounded-xl px-5 py-2.5 text-sm font-medium transition disabled:opacity-60 ${
             onDark ? "bg-white text-ink hover:bg-volt" : "bg-ink text-white hover:bg-ink/85"
           }`}
         >
@@ -128,10 +156,10 @@ export function WaitlistForm({ tone = "light" }: { tone?: "light" | "dark" }) {
         }`}
       >
         {status === "error"
-          ? ACCESS_KEY
+          ? ENDPOINT
             ? "Something went wrong — try again in a moment."
             : "Early access signups are not configured yet."
-          : "Private beta for hiring teams. No spam, ever."}
+          : "Company and role are optional. No spam, ever."}
       </p>
     </form>
   );
